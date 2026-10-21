@@ -46,9 +46,24 @@ Ambos archivos tienen el mismo hash SHA-256:
 Texto completo de la licencia:
 [LICENSE-Real-ESRGAN.txt](LICENSE-Real-ESRGAN.txt)
 
-Los archivos de modelos (.bin y .param) requieren una
-verificación adicional de sus licencias y condiciones
-de redistribución.
+Los 10 archivos de modelos (.bin y .param) incluidos
+en SmartCrop AI fueron comparados mediante SHA-256
+con los correspondientes archivos de la distribución
+oficial realesrgan-ncnn-vulkan-20220424-windows.
+
+Resultado: los 10 archivos son idénticos.
+
+Modelos verificados:
+- realesr-animevideov3-x2
+- realesr-animevideov3-x3
+- realesr-animevideov3-x4
+- realesrgan-x4plus-anime
+- realesrgan-x4plus
+
+Pendiente: confirmar las licencias y condiciones
+de redistribución específicas de los pesos de
+los modelos.
+
 
 También deben revisarse las dependencias binarias
 incluidas en la distribución.
