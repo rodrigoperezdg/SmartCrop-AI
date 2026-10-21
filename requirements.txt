@@ -1,0 +1,9 @@
+PySide6
+Pillow
+pillow-avif-plugin
+opencv-python
+ultralytics
+torch
+torchvision
+numpy
+pyinstaller
