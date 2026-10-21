@@ -39,4 +39,19 @@ El código suministrado no implementa telemetría ni carga de fotografías a ser
 
 ## Licencia
 
-**Pendiente de formalizar antes de la publicación:** la integración con Ultralytics requiere revisar y cumplir AGPL-3.0 o disponer de otra licencia apropiada. Agregar el texto completo de la licencia, avisos de copyright y fuentes correspondientes después de confirmar el alcance aplicable.
+
+## Licencia
+
+El código original de SmartCrop AI se distribuye bajo
+GNU Affero General Public License v3.0 (AGPL-3.0-only).
+
+Consultá el archivo [LICENSE](LICENSE) para conocer
+los términos completos.
+
+SmartCrop AI utiliza componentes de terceros, incluidos
+Ultralytics YOLO, PySide6, PyTorch y Real-ESRGAN NCNN Vulkan,
+que conservan sus respectivas licencias.
+
+Consultá [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+para obtener más información sobre estos componentes.
+
