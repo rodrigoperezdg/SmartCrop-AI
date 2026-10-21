@@ -39,9 +39,6 @@ El código suministrado no implementa telemetría ni carga de fotografías a ser
 
 ## Licencia
 
-
-## Licencia
-
 El código original de SmartCrop AI se distribuye bajo
 GNU Affero General Public License v3.0 (AGPL-3.0-only).
 
