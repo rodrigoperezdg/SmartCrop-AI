@@ -67,7 +67,8 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 
 [Files]
 
-; Copia TODO lo generado por PyInstaller.
+; Copia TODO lo generado por PyInstaller desde la carpeta de compilación de prueba.
+; Antes de generar el instalador definitivo, recompilar SmartCrop.spec y probar SmartCrop.exe.
 ; Esto incluye:
 ;
 ; SmartCrop.exe
@@ -80,7 +81,7 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 ; PySide6
 ; etc.
 
-Source: "dist\SmartCrop\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SourcePath}\dist\SmartCrop\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 
 ; ============================================================

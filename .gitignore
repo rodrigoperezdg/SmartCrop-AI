@@ -1,0 +1,44 @@
+﻿# Compilaciones e instaladores
+build/
+dist/
+installer/
+*.exe
+*.dll
+*.rar
+*.zip
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Respaldos de desarrollo
+models_backup/
+main_backup.py
+SmartCrop_backup*.spec
+SmartCropInstaller_backup.iss
+
+# Archivos de prueba y multimedia
+input.jpg
+input2.jpg
+onepiece_demo.mp4
+
+# Archivos locales de auditoria
+ARCHIVOS_LEGALES_ENCONTRADOS.txt
+AUDITORIA_DEPENDENCIAS.txt
+dependencias_instaladas.txt
+INVENTARIO_LICENCIAS.txt
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Versiones anteriores de documentacion
+README_SmartCrop_BORRADOR.md
+README_SmartCrop_revisado.md
+
+# Respaldos adicionales del SPEC
+SmartCrop_antes_ruta_opencv.spec

@@ -17,6 +17,7 @@
 # https://www.gnu.org/licenses/agpl-3.0.html.
 
 import sys
+import sys
 import os
 import subprocess
 import winsound
@@ -1750,6 +1751,22 @@ def mejorar_con_esrgan(
         "smartcrop_esrgan_output.png"
     )
 
+
+    # Limitar la imagen intermedia: Real-ESRGAN genera 4x por lado
+    # (16x pixeles). Esto evita resultados gigantes que Pillow bloquea
+    # y reduce considerablemente el consumo de RAM/VRAM.
+    max_pixeles_salida_ia = 64_000_000
+    pixeles_estimados = imagen.width * imagen.height * 16
+
+    if pixeles_estimados > max_pixeles_salida_ia:
+        import math
+        factor = math.sqrt(max_pixeles_salida_ia / pixeles_estimados)
+        nuevo_ancho = max(1, int(imagen.width * factor))
+        nuevo_alto = max(1, int(imagen.height * factor))
+        imagen = imagen.resize(
+            (nuevo_ancho, nuevo_alto),
+            Image.Resampling.LANCZOS
+        )
 
     imagen.save(
         entrada,

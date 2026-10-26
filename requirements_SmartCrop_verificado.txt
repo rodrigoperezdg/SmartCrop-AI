@@ -1,0 +1,25 @@
+# SmartCrop AI — dependencias directas verificadas en main.py
+# Versiones del entorno registrado (octubre de 2026).
+# Python 3.14 / Windows. La instalación en un entorno limpio está pendiente de prueba.
+PySide6==6.11.2
+ultralytics==8.4.157
+opencv-python==4.12.0.88
+numpy==2.2.6
+Pillow==12.3.0
+pillow-avif-plugin==1.6.0
+
+# Dependencias usadas por Ultralytics y empaquetadas explícitamente en SmartCrop.spec.
+# Se fijan para reproducir la compilación conocida, aunque no son imports directos del archivo principal.
+torch==2.14.0
+torchvision==0.29.0
+
+# Dependencia incluida por SmartCrop.spec (collect_all('pi_heif')).
+# No figura en el listado de paquetes proporcionado: verificar la versión instalada
+# con: py -m pip show pi-heif
+# pi-heif==<VERSION_PENDIENTE>
+
+# Herramienta de compilación; no necesaria para ejecutar el EXE ya compilado.
+pyinstaller==6.22.3
+
+# Recursos NO instalados mediante pip: yolo11n.pt,
+# realesrgan-ncnn-vulkan.exe y models/realesrgan-x4plus.{bin,param}.
