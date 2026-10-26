@@ -42,3 +42,11 @@ README_SmartCrop_revisado.md
 
 # Respaldos adicionales del SPEC
 SmartCrop_antes_ruta_opencv.spec
+# Archivos temporales de validacion del instalador
+installer_test/
+SmartCropInstaller.iss.backup
+SmartCropInstaller_Test.iss
+compilacion_instalador.log
+compilacion_instalador_test.log
+preparar_vcomp140.ps1
+compilacion_final.log

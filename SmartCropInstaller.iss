@@ -81,7 +81,7 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 ; PySide6
 ; etc.
 
-Source: "{#SourcePath}\dist\SmartCrop\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "dist\SmartCrop\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 
 ; ============================================================
