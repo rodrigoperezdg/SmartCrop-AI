@@ -50,3 +50,6 @@ compilacion_instalador.log
 compilacion_instalador_test.log
 preparar_vcomp140.ps1
 compilacion_final.log
+
+# Microsoft Visual C++ Redistributable (archivo local)
+/redist/
