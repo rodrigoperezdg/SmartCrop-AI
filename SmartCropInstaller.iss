@@ -14,7 +14,7 @@ DefaultDirName={localappdata}\Programs\SmartCrop AI
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=installer
-; Candidato RC2: conserva intactos los instaladores previamente validados.
+; Prueba online: Visual C++ se descarga desde Microsoft.
 OutputBaseFilename=SmartCrop_Setup_1.0.0
 Compression=lzma2
 SolidCompression=yes
@@ -31,8 +31,6 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 
 [Files]
 Source: "dist\SmartCrop\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-; Copia temporal: se ejecuta solo si falta una version suficiente del runtime.
-Source: "redist\vc_redist.x64.exe"; Flags: dontcopy
 
 [Icons]
 Name: "{autoprograms}\SmartCrop AI"; Filename: "{app}\SmartCrop.exe"; WorkingDir: "{app}"
@@ -72,6 +70,7 @@ function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   ExitCode: Integer;
   Launched: Boolean;
+  ScriptPath, DownloadPath, ScriptText: String;
 begin
   Result := '';
   if HasCompatibleVCRuntime() then begin
@@ -80,15 +79,43 @@ begin
   end;
 
   if MsgBox('SmartCrop AI necesita Microsoft Visual C++ Redistributable x64.' + #13#10 + #13#10 +
-      'No se encontro una version compatible. Se ejecutara el instalador oficial de Microsoft ' +
+      'No se encontro una version compatible. Se descargara y ejecutara el instalador oficial de Microsoft ' +
       '(puede solicitar permisos de administrador).' + #13#10 + #13#10 +
       '¿Deseas continuar?', mbConfirmation, MB_YESNO) <> IDYES then begin
     Result := 'No se autorizo la instalacion del requisito Microsoft Visual C++ Redistributable x64.';
     Exit;
   end;
 
-  ExtractTemporaryFile('vc_redist.x64.exe');
-  Launched := ShellExec('runas', ExpandConstant('{tmp}\vc_redist.x64.exe'),
+  DownloadPath := ExpandConstant('{tmp}\vc_redist.x64.exe');
+  ScriptPath := ExpandConstant('{tmp}\smartcrop_download_vc.ps1');
+  ScriptText :=
+    '$ErrorActionPreference = ''Stop''' + #13#10 +
+    '[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12' + #13#10 +
+    '$url = ''https://aka.ms/vc14/vc_redist.x64.exe''' + #13#10 +
+    '$dest = ''' + DownloadPath + '''' + #13#10 +
+    'try {' + #13#10 +
+    '  Invoke-WebRequest -Uri $url -OutFile $dest -UseBasicParsing -MaximumRedirection 10' + #13#10 +
+    '  if ((Get-Item $dest).Length -lt 1000000) { throw ''Descarga incompleta'' }' + #13#10 +
+    '  $sig = Get-AuthenticodeSignature -FilePath $dest' + #13#10 +
+    '  if ($sig.Status -ne ''Valid'' -or $null -eq $sig.SignerCertificate -or ' +
+      '$sig.SignerCertificate.Subject -notmatch ''Microsoft Corporation'') { ' +
+      'throw ''Firma digital de Microsoft no valida'' }' + #13#10 +
+    '  exit 0' + #13#10 +
+    '} catch { Write-Error $_; exit 1 }' + #13#10;
+  if not SaveStringToFile(ScriptPath, ScriptText, False) then begin
+    Result := 'No se pudo preparar la descarga de Microsoft Visual C++.';
+    Exit;
+  end;
+  Log('Descargando Visual C++ x64 desde Microsoft y verificando su firma digital.');
+  Launched := Exec(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'),
+    '-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "' + ScriptPath + '"',
+    '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
+  if (not Launched) or (ExitCode <> 0) then begin
+    Result := 'No se pudo descargar o verificar Microsoft Visual C++ x64. ' +
+      'Comprueba la conexion a Internet y vuelve a intentarlo.';
+    Exit;
+  end;
+  Launched := ShellExec('runas', DownloadPath,
     '/install /passive /norestart', '', SW_SHOWNORMAL, ewWaitUntilTerminated, ExitCode);
 
   if not Launched then begin
