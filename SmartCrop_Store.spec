@@ -1,7 +1,7 @@
 ﻿# -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all, collect_data_files
 
-datas = [(r'C:\SmartCrop_Test\MSIX_Store\Assets\SmartCrop_Master.png', '.'), ('yolo11n.pt', '.'), ('models/realesrgan-x4plus.bin', 'models'), ('models/realesrgan-x4plus.param', 'models')]
+datas = [(r'Assets/SmartCrop_Master.png', '.'), ('yolo11n.pt', '.'), ('models/realesrgan-x4plus.bin', 'models'), ('models/realesrgan-x4plus.param', 'models')]
 datas += collect_data_files('cv2', includes=['data/*'])
 # Documentacion legal incluida en la distribucion.
 datas += [
@@ -57,7 +57,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name='SmartCrop',
-    icon=r'C:\SmartCrop_Test\MSIX_Store\Assets\SmartCrop.ico',
+    icon=r'Assets/SmartCrop.ico',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -104,6 +104,7 @@ coll = COLLECT(
     upx_exclude=[],
     name='SmartCrop',
 )
+
 
 
 
