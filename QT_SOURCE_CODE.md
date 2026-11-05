@@ -1,6 +1,6 @@
-# SmartCrop AI 1.0.0 — Fuentes de Qt / Qt for Python
+# SmartCrop AI 1.0.0 / Store 1.0.1.0 — Fuentes de Qt / Qt for Python
 
-Este documento identifica los archivos fuente oficiales correspondientes a los componentes Qt detectados en la compilación de Windows de SmartCrop AI 1.0.0. **No constituye, por sí solo, una certificación de cumplimiento de LGPL.**
+Este documento identifica los archivos fuente oficiales correspondientes a los componentes Qt detectados en la compilación tradicional 1.0.0 y en la compilación Store 1.0.1.0 de SmartCrop AI. **No constituye, por sí solo, una certificación de cumplimiento de LGPL.**
 
 ## Versiones y archivos fuente
 
@@ -32,12 +32,22 @@ Los archivos se descargaron en la máquina de desarrollo en `Downloads\SmartCrop
 
 Este inventario se basa en los nombres de archivos reportados en `C:\SmartCrop_Test\dist\SmartCrop\_internal`. No sustituye una auditoría de dependencias transitivas, código modificado, opciones de compilación ni licencias de terceros incluidas en los paquetes.
 
+## Verificación adicional de Store (5/11/2026)
+
+En `C:\SmartCrop_Test\MSIX_Store\Package_Final`, preparado para el MSIX Store 1.0.1.0, se verificó que `SmartCrop.exe` coincide por SHA-256 con `dist_store_taskbar/SmartCrop/SmartCrop.exe`: `EFEE83E00A6896D6C7C3248D7512D7DFADFFA35C36E4F35CB53DC7C12D51F925`. También coincidieron por hash las seis DLL principales de Qt enumeradas anteriormente.
+
+La `Qt6Core.dll` de esa compilación se sustituyó en **una copia independiente, no instalada mediante MSIX**, por una versión 6.11.2 recompilada con una modificación real y SHA-256 `078E92FD47B7B16F7678ABFD8AE485D47E7D3B3190CFB89AC6827C703E36EE6D`. SmartCrop abrió, importó, recortó y exportó una imagen correctamente. Los pasos y limitaciones están documentados en `QT_LGPL_COMPLIANCE.md`.
+
+Los tres archivos fuente `.tar.xz` enumerados arriba seguían presentes en `Downloads\SmartCrop_Fuentes_Qt` el 5/11/2026. Se comprobó su existencia y tamaño, **no se recalcularon sus hashes ese día**. La verificación SHA-256 original se mantiene documentada.
+
+El paquete Store 1.0.1.0 superó la certificación técnica de Microsoft y está pendiente de publicación. **La certificación no acredita cumplimiento LGPL**. El mecanismo de reemplazo de Qt en una instalación MSIX protegida sigue sin comprobarse. Tampoco se ha demostrado una reconstrucción binariamente idéntica del MSIX certificado.
+
 ## Pendientes antes de distribuir
 
-1. Definir y documentar un mecanismo real para que el destinatario pueda utilizar bibliotecas Qt compatibles modificadas, y probarlo con una modificación efectiva (no basta reemplazar una DLL por otra idéntica).
+1. Documentar para destinatarios el mecanismo de sustitución en distribución independiente, ya probado con una modificación efectiva; evaluar por separado su suficiencia jurídica para cada modalidad de distribución.
 2. Comprobar obligaciones concretas de LGPL y otras licencias aplicables a cada biblioteca y plugin, incluidos avisos y texto de licencia, y la disponibilidad del código fuente correspondiente bajo condiciones apropiadas. Los enlaces externos por sí solos pueden no satisfacer todas las obligaciones.
 3. Comprobar si se necesitan instrucciones de compilación, opciones/configuración y materiales adicionales para reconstruir los componentes efectivamente distribuidos.
-4. Verificar por separado la distribución MSIX de Microsoft Store, incluidas restricciones de integridad, actualización y reemplazo de DLLs.
+4. Resolver las restricciones de integridad, actualización y reemplazo de DLLs de una instalación MSIX de Microsoft Store; la prueba `onedir` no las resuelve.
 5. Revisar las licencias de las demás dependencias (Ultralytics/YOLO, Real-ESRGAN y pesos, PyTorch, OpenCV, etc.).
 6. Actualizar este documento si cambian versiones, archivos o método de empaquetado, e incluirlo en la distribución final.
 

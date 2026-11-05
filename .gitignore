@@ -53,3 +53,15 @@ compilacion_final.log
 
 # Microsoft Visual C++ Redistributable (archivo local)
 /redist/
+
+# Compilaciones temporales de Microsoft Store
+build_store*/
+dist_store*/
+
+# Respaldos y archivos intermedios
+*.backup
+*.spec.backup
+main_pre_icono.py
+SmartCropInstaller_PreVisualC.iss
+SmartCropInstaller_RC2_Respaldo.iss
+SmartCropInstaller_VC_*.iss

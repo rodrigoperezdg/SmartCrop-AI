@@ -1,6 +1,6 @@
 # Qt / PySide6 / Shiboken6 — información de licencias de SmartCrop AI
 
-**Estado (25 de octubre de 2026):** inventario y pruebas técnicas de la versión 1.0.0, con obligaciones legales todavía pendientes. **No constituye una certificación de cumplimiento legal ni autoriza por sí solo la publicación.**
+**Estado (5 de noviembre de 2026):** inventario y pruebas técnicas de la versión tradicional 1.0.0 y de la compilación Store 1.0.1.0, con obligaciones legales todavía pendientes. **No constituye una certificación de cumplimiento legal ni autoriza por sí solo la publicación.**
 
 ## Versiones identificadas
 
@@ -117,11 +117,28 @@ Se recompiló Qt Base con Ninja: finalizó con código 0 y actualizó `Qt6Core.d
 
 **Conclusión y límites:** existe evidencia práctica de sustitución y funcionamiento de **una** biblioteca Qt modificada en la distribución tradicional tipo `onedir` bajo esta configuración. No se probó cualquier modificación posible, otros equipos, todos los plugins ni una instalación realizada por Inno Setup con este reemplazo. Esta prueba **no certifica** por sí sola cumplimiento LGPL; aún hay que ofrecer fuentes, instrucciones reproducibles y avisos adecuados, y revisar las restricciones de distribución y MSIX. La DLL de prueba modificada no se incorporó al instalador de producción.
 
+## Prueba adicional: ejecutable de Store con Qt modificado (5/11/2026)
+
+Se identificó la compilación local `dist_store_taskbar/SmartCrop` y se comparó con `C:\SmartCrop_Test\MSIX_Store\Package_Final`, carpeta preparada para el MSIX 1.0.1.0 certificado por Microsoft Store.
+
+- `SmartCrop.exe` coincidió byte a byte según SHA-256: `EFEE83E00A6896D6C7C3248D7512D7DFADFFA35C36E4F35CB53DC7C12D51F925`.
+- Coincidieron por SHA-256 las seis DLL principales: `Qt6Core.dll`, `Qt6Gui.dll`, `Qt6Network.dll`, `Qt6OpenGL.dll`, `Qt6Svg.dll` y `Qt6Widgets.dll`.
+- La `Qt6Core.dll` original de Store tenía SHA-256 `D6A3C37C5263C5D418FC0E80B722BC9FCA7C0859E6F635F9624A2FDE00BDC653`.
+- La `Qt6Core.dll` modificada y recompilada tenía SHA-256 `078E92FD47B7B16F7678ABFD8AE485D47E7D3B3190CFB89AC6827C703E36EE6D`.
+- Se creó una copia independiente en `C:\SmartCrop_Test\QtBuild\Prueba_Store_Qt_Modificado`, se reemplazó **únicamente en esa copia** `_internal/PySide6/Qt6Core.dll` y se verificó el hash de destino.
+- El usuario confirmó que SmartCrop **abrió, importó una imagen, realizó un recorte y exportó correctamente**. El ícono de la barra de tareas requirió volver a anclar la aplicación; no se determinó su causa.
+
+**Alcance:** esta prueba demuestra que el ejecutable empleado para Store funciona con una DLL Qt genuinamente modificada **cuando se ejecuta como distribución independiente `onedir`**. No demuestra que sea posible reemplazar las DLL de una aplicación **instalada** mediante MSIX, ni que la alternativa independiente satisfaga por sí sola las obligaciones LGPL de esa distribución. No se modificó el MSIX certificado.
+
+### Empaquetado MSIX de prueba (5/11/2026)
+
+Se preparó `build_store_msix.ps1` para empaquetar una distribución PyInstaller preexistente, con MakeAppx del SDK Windows `10.0.26100.0`. Se generó `C:\SmartCrop_Test\MSIX_Rebuild_Test\SmartCropAI_Rebuild_Unsigned.msix` y MakeAppx confirmó su creación y extracción correctas. El paquete de prueba no está firmado, no se instaló y no equivale a una reconstrucción desde fuentes. Se empleó una compilación tradicional que mostró diferencias de archivos respecto de `Package_Final`; por lo tanto **no se acreditó reproducibilidad binaria del paquete certificado**.
+
 ## Advertencia sobre MSIX y Microsoft Store
 
 Los paquetes MSIX se firman y su instalación está sujeta a mecanismos de integridad. No se ha demostrado que un usuario pueda reemplazar las bibliotecas Qt dentro de un SmartCrop instalado mediante MSIX y seguir ejecutándolo. **La existencia de un instalador EXE alternativo no resuelve automáticamente las obligaciones de una distribución MSIX separada.**
 
-**Estado:** compatibilidad de la distribución MSIX con LGPL-3.0 **sin resolver**. No publicar como conforme ni enviar a certificación hasta contar con una solución técnicamente comprobada y una revisión legal adecuada. Las opciones a evaluar incluyen una vía documentada para instalar y ejecutar una versión modificada, un esquema de distribución distinto o licencias comerciales cuando corresponda.
+**Estado:** compatibilidad de la distribución MSIX con LGPL-3.0 **sin resolver**. El MSIX 1.0.1.0 ya superó la certificación técnica de Microsoft Store y figura listo para publicar, pero **no debe presentarse como conforme a LGPL ni publicarse sin resolver los pendientes técnicos y realizar una revisión legal adecuada**. Las opciones a evaluar incluyen una vía documentada para instalar y ejecutar una versión modificada, un esquema de distribución distinto o licencias comerciales cuando corresponda.
 
 ## Estado de la compilación y el instalador 1.0.0
 
@@ -140,5 +157,7 @@ Los paquetes MSIX se firman y su instalación está sujeta a mecanismos de integ
 - [ ] Publicar instrucciones reproducibles de sustitución y configuraciones de compilación, y documentar parches/cambios exigibles (esta prueba ya quedó registrada).
 - [x] Probar la sustitución física de una DLL Qt por otra idéntica en una copia aislada (no demuestra compatibilidad con DLL modificada).
 - [x] Probar una biblioteca Qt genuinamente modificada en una copia aislada `onedir`: `Qt6Core.dll` modificada, exportación comprobada y SmartCrop funcional. Pendiente documentar procedimiento para usuarios de la versión instalada.
-- [ ] Resolver por separado la posibilidad de usar bibliotecas modificadas en la distribución MSIX.
+- [x] Probar el ejecutable correspondiente a Store con `Qt6Core.dll` genuinamente modificada fuera del MSIX (5/11/2026).
+- [x] Generar y extraer un MSIX de prueba sin firma con MakeAppx; no es reconstrucción idéntica del certificado.
+- [ ] Resolver por separado la posibilidad de usar bibliotecas modificadas en la distribución MSIX **instalada**, o verificar jurídicamente otra vía que cumpla las condiciones aplicables.
 - [ ] Revisar los términos de Microsoft Store y las obligaciones de AGPL-3.0 del código de SmartCrop y Ultralytics.
