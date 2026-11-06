@@ -1,6 +1,6 @@
 # SmartCrop AI — Compilación desde el código fuente (Windows / Microsoft Store)
 
-**Estado:** procedimiento documentado, **pendiente de validación integral en un entorno limpio**. No se garantiza que el resultado sea idéntico, byte por byte, al MSIX certificado `1.0.1.0`. Este documento **no acredita cumplimiento de LGPL, AGPL ni de otras licencias**.
+**Estado:** empaquetado MSIX sin firma validado con la nueva plantilla pública y una compilación PyInstaller preexistente; **pendiente de validación integral en un entorno limpio**. No se garantiza que el resultado sea idéntico, byte por byte, al MSIX certificado `1.0.1.0`. Este documento **no acredita cumplimiento de LGPL, AGPL ni de otras licencias**.
 
 ## 1. Alcance y entorno conocido
 
@@ -69,19 +69,29 @@ El manifiesto de referencia declara:
 - Recursos `es-AR` y `en-US`.
 - Archivos gráficos del manifiesto dentro de `Assets/`.
 
-El manifiesto original **no forma parte de los archivos del repositorio cuya presencia se ha confirmado**. Para generar un nuevo MSIX se necesita una copia legítima del manifiesto y de los recursos gráficos. No se deben inferir estos archivos a partir del nombre de la aplicación.
+El manifiesto de referencia está disponible en `MSIX_Template/AppxManifest.xml`, copiado desde `Package_Final` y comparado mediante SHA-256: `9606C76D517AF33A02EAF82774094EEC4D672C08C551FEF7FBB804AE0D03DF65` (ambas copias coinciden). Los recursos gráficos se mantienen en `Assets/` del repositorio, **sin duplicarlos** dentro de `MSIX_Template/`. Se compararon los ocho archivos de `Assets/` con los del paquete final y todos coincidieron por hash.
+
+La identidad y el editor del manifiesto corresponden al paquete de referencia de SmartCrop AI. Una reconstrucción independiente **no debe presentarse como una actualización oficial ni distribuirse con esa identidad sin la autorización y el proceso de firma correspondientes**.
 
 ## 5. Empaquetar un MSIX nuevo, sin firmar
 
-El script adjunto `build_store_msix.ps1` **no compila Python**: toma una distribución PyInstaller ya generada y un directorio de plantilla que contiene `AppxManifest.xml` y `Assets/`, valida entradas y genera un MSIX nuevo **sin firma** mediante MakeAppx.
+El script `build_store_msix.ps1` **no compila Python**: toma una distribución PyInstaller ya generada, el manifiesto de `TemplateDir` y los recursos de `AssetsDir`, valida entradas y genera un MSIX nuevo **sin firma** mediante MakeAppx. Si se omite `AssetsDir`, busca `Assets/` dentro de `TemplateDir` (compatibilidad anterior) o en la carpeta hermana de `MSIX_Template/`.
 
-Ejemplo con una plantilla local revisada:
+Ejemplo con los archivos del repositorio (usar una carpeta de salida nueva):
 
 ```powershell
- .\build_store_msix.ps1 -AppDir '.\dist\SmartCrop' -TemplateDir 'C:\SmartCrop_Test\MSIX_Store\Package_Final' -OutputDir 'C:\SmartCrop_Test\MSIX_Rebuild_Prueba'
+ powershell.exe -NoProfile -ExecutionPolicy Bypass -File '.\build_store_msix.ps1' -AppDir '.\dist\SmartCrop' -TemplateDir '.\MSIX_Template' -AssetsDir '.\Assets' -OutputDir 'C:\SmartCrop_Test\MSIX_Rebuild_Prueba'
 ```
 
-El script copia **solo** `AppxManifest.xml` y `Assets/` de la plantilla; copia `SmartCrop.exe` y `_internal/` de `AppDir`. No altera `Package_Final` ni el MSIX certificado. El paquete resultante puede conservar la identidad y versión del manifiesto de referencia: **no instalarlo junto con la versión publicada, ni distribuirlo como actualización**, sin revisar identidad, versión, firma y titularidad.
+El script copia `AppxManifest.xml` de `TemplateDir`, `Assets/` de `AssetsDir` y `SmartCrop.exe` y `_internal/` de `AppDir`. No altera `Package_Final` ni el MSIX certificado. El paquete resultante puede conservar la identidad y versión del manifiesto de referencia: **no instalarlo junto con la versión publicada, ni distribuirlo como actualización**, sin revisar identidad, versión, firma y titularidad.
+
+### Prueba efectuada el 6 de noviembre de 2026
+
+Se ejecutó el script actualizado con `-AppDir '.\dist_store_taskbar\SmartCrop'`, `-TemplateDir '.\MSIX_Template'`, `-AssetsDir '.\Assets'` y `-OutputDir 'C:\SmartCrop_Test\MSIX_Rebuild_NuevaPlantilla'`. **No se recompiló la aplicación**: se reutilizó la compilación PyInstaller previamente comprobada. MakeAppx informó `Package creation succeeded` y generó `SmartCropAI_Rebuild_Unsigned.msix`.
+
+SHA-256 del MSIX de prueba: `18C5E411E0CBCE2AE8E46E4C50CA01E16ECB63864C7FE93D6780564DE7EDCB9E`.
+
+Se inspeccionó el contenido mediante `tar -tf` y se verificó la presencia de `AppxManifest.xml`, `SmartCrop.exe`, `_internal/PySide6/Qt6Core.dll`, `_internal/yolo11n.pt` y `_internal/realesrgan-ncnn-vulkan.exe`. **Esta prueba valida el empaquetado y la presencia de esos archivos, no la instalación del MSIX, su ejecución como aplicación instalada ni una reconstrucción limpia desde fuentes.**
 
 La salida sin firma sirve para inspección técnica; **no está lista para instalarse o publicarse en Microsoft Store**. La firma, la versión, la reserva de identidad y el flujo de envío a Partner Center requieren un procedimiento independiente.
 
@@ -96,9 +106,9 @@ La salida sin firma sirve para inspección técnica; **no está lista para insta
 
 ## 7. Código fuente de Qt, modificaciones y obligaciones de licencia
 
-Las fuentes oficiales verificadas para **Qt Base 6.11.2**, **Qt SVG 6.11.2** y **Qt for Python/PySide6/Shiboken6 6.11.2**, con hashes, están en `QT_SOURCE_CODE.md`. `QT_LGPL_COMPLIANCE.md` registra una prueba funcional de reemplazo de `Qt6Core.dll` **realmente modificada** en una distribución tradicional PyInstaller `onedir`; también documenta el entorno MSVC/CMake/Ninja y las limitaciones de esa prueba.
+Las fuentes oficiales verificadas para **Qt Base 6.11.2**, **Qt SVG 6.11.2** y **Qt for Python/PySide6/Shiboken6 6.11.2**, con hashes, están en `QT_SOURCE_CODE.md`. `QT_LGPL_COMPLIANCE.md` registra una prueba funcional de reemplazo de `Qt6Core.dll` **realmente modificada** en una copia independiente de la distribución PyInstaller utilizada como base de Store, fuera de la instalación MSIX; también documenta el entorno MSVC/CMake/Ninja y las limitaciones de esa prueba.
 
-**La prueba de reemplazo del EXE tradicional no demuestra que el MSIX instalado permita reemplazar y ejecutar bibliotecas Qt modificadas.** Los archivos de instalación MSIX están sujetos a integridad y restricciones de modificación. Quedan pendientes el mecanismo verificable para usar bibliotecas LGPL modificadas con la distribución Store, la oferta del código fuente correspondiente y materiales de compilación necesarios, los avisos y licencias de cada módulo/plugin, y una revisión legal apropiada. **No considerar este documento autorización para publicar.**
+**La prueba de reemplazo en una copia PyInstaller fuera de MSIX no demuestra que el MSIX instalado permita reemplazar y ejecutar bibliotecas Qt modificadas.** Los archivos de instalación MSIX están sujetos a integridad y restricciones de modificación. Quedan pendientes el mecanismo verificable para usar bibliotecas LGPL modificadas con la distribución Store, la oferta del código fuente correspondiente y materiales de compilación necesarios, los avisos y licencias de cada módulo/plugin, y una revisión legal apropiada. **No considerar este documento autorización para publicar.**
 
 También queda pendiente la revisión de **AGPL-3.0 y Ultralytics**, así como de las condiciones aplicables al código propio, los pesos/modelos, Real-ESRGAN y demás componentes. La certificación técnica de Microsoft Store no sustituye esa revisión.
 
@@ -107,6 +117,9 @@ También queda pendiente la revisión de **AGPL-3.0 y Ultralytics**, así como d
 - `README.md`
 - `requirements.txt`
 - `SmartCrop_Store.spec`
+- `MSIX_Template/AppxManifest.xml`
+- `Assets/`
+- `build_store_msix.ps1`
 - `preparar_realesrgan.ps1`
 - `preparar_vcomp140.ps1`
 - `QT_LGPL_COMPLIANCE.md`

@@ -6,6 +6,7 @@ param(
     [Parameter(Mandatory = $true)][string]$TemplateDir,
     [Parameter(Mandatory = $true)][string]$OutputDir,
     [string]$OutputName = 'SmartCropAI_Rebuild_Unsigned.msix',
+    [string]$AssetsDir,
     [string]$MakeAppxPath
 )
 $ErrorActionPreference = 'Stop'
@@ -23,7 +24,17 @@ $template = Resolve-ExistingDirectory $TemplateDir 'TemplateDir'
 if (-not (Test-Path -LiteralPath (Join-Path $app 'SmartCrop.exe') -PathType Leaf)) { throw 'Falta SmartCrop.exe en AppDir.' }
 if (-not (Test-Path -LiteralPath (Join-Path $app '_internal') -PathType Container)) { throw 'Falta _internal en AppDir.' }
 if (-not (Test-Path -LiteralPath (Join-Path $template 'AppxManifest.xml') -PathType Leaf)) { throw 'Falta AppxManifest.xml en TemplateDir.' }
-if (-not (Test-Path -LiteralPath (Join-Path $template 'Assets') -PathType Container)) { throw 'Falta Assets en TemplateDir.' }
+# Compatibilidad: si no se indica AssetsDir, usar Assets de la plantilla
+# o la carpeta Assets hermana de MSIX_Template dentro del repositorio.
+if ([string]::IsNullOrWhiteSpace($AssetsDir)) {
+    $templateAssets = Join-Path $template 'Assets'
+    if (Test-Path -LiteralPath $templateAssets -PathType Container) {
+        $AssetsDir = $templateAssets
+    } else {
+        $AssetsDir = Join-Path (Split-Path -Parent $template) 'Assets'
+    }
+}
+$assets = Resolve-ExistingDirectory $AssetsDir 'AssetsDir'
 if ([IO.Path]::GetFileName($OutputName) -ne $OutputName -or -not $OutputName.EndsWith('.msix', [StringComparison]::OrdinalIgnoreCase)) {
     throw 'OutputName debe ser un nombre de archivo .msix, sin carpetas.'
 }
@@ -42,7 +53,7 @@ if (-not (Test-Path -LiteralPath $MakeAppxPath -PathType Leaf)) { throw "MakeApp
 $outFull = [IO.Path]::GetFullPath($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputDir))
 $root = [IO.Path]::GetPathRoot($outFull)
 if ($outFull.TrimEnd('\') -eq $root.TrimEnd('\')) { throw 'OutputDir no puede ser la raiz de una unidad.' }
-foreach ($protected in @($app, $template)) {
+foreach ($protected in @($app, $template, $assets)) {
     if ($outFull.TrimEnd('\').Equals($protected.TrimEnd('\'), [StringComparison]::OrdinalIgnoreCase) -or
         $outFull.StartsWith($protected.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase) -or
         $protected.StartsWith($outFull.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) {
@@ -56,7 +67,7 @@ $staging = Join-Path $outFull ('staging_' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $staging | Out-Null
 try {
     Copy-Item -LiteralPath (Join-Path $template 'AppxManifest.xml') -Destination $staging
-    Copy-Item -LiteralPath (Join-Path $template 'Assets') -Destination $staging -Recurse
+    Copy-Item -LiteralPath $assets -Destination (Join-Path $staging 'Assets') -Recurse
     Copy-Item -LiteralPath (Join-Path $app 'SmartCrop.exe') -Destination $staging
     Copy-Item -LiteralPath (Join-Path $app '_internal') -Destination $staging -Recurse
 
