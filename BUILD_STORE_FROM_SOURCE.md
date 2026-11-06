@@ -1,17 +1,17 @@
 # SmartCrop AI — Compilación desde el código fuente (Windows / Microsoft Store)
 
-**Estado:** empaquetado MSIX sin firma validado con la nueva plantilla pública y una compilación PyInstaller preexistente; **pendiente de validación integral en un entorno limpio**. No se garantiza que el resultado sea idéntico, byte por byte, al MSIX certificado `1.0.1.0`. Este documento **no acredita cumplimiento de LGPL, AGPL ni de otras licencias**.
+**Estado:** empaquetado MSIX sin firma validado con la nueva plantilla pública; reconstrucción independiente con entorno virtual nuevo y pruebas funcionales completadas el 6 de noviembre de 2026. **Pendientes:** validación en otra máquina limpia, instalación/ejecución del MSIX reconstruido y revisión de licencias. No se garantiza que el resultado sea idéntico, byte por byte, al MSIX certificado `1.0.1.0`. Este documento **no acredita cumplimiento de LGPL, AGPL ni de otras licencias**.
 
 ## 1. Alcance y entorno conocido
 
 - Repositorio: <https://github.com/rodrigoperezdg/SmartCrop-AI>.
-- Windows x64; Python **3.14.0**; PyInstaller **6.22.3**.
+- Windows x64; compilación original con Python **3.14.0**; reconstrucción de prueba con Python **3.14.7**; PyInstaller **6.22.3**.
 - Compilación de la aplicación Store: `main_store.py` y `SmartCrop_Store.spec`.
 - Paquete Store de referencia: `SmartCropAI_1.0.1.0_Store.msix`, identidad `eskimal.SmartCropAI`, arquitectura `x64`, mínimo Windows `10.0.19041.0`.
 - Windows SDK observado: `10.0.26100.0`, con `makeappx.exe` x64.
 - Visual Studio Build Tools 2022 utilizado en pruebas de Qt.
 
-Las versiones fijadas de bibliotecas Python están en `requirements.txt`: PySide6 6.11.2, ultralytics 8.4.157, opencv-python 4.12.0.88, numpy 2.2.6, Pillow 12.3.0, pillow-avif-plugin 1.6.0, torch 2.14.0, torchvision 0.29.0 y pi-heif 1.4.0. **No se ha comprobado todavía la instalación de este conjunto desde cero**. La presencia de `pi-heif` en `requirements.txt` no implica que esté instalado en cualquier intérprete Python utilizado.
+Las versiones fijadas de bibliotecas Python están en `requirements.txt`: PySide6 6.11.2, ultralytics 8.4.157, opencv-python 4.12.0.88, numpy 2.2.6, Pillow 12.3.0, pillow-avif-plugin 1.6.0, torch 2.14.0, torchvision 0.29.0, lap 0.5.14 y pi-heif 1.4.0. **La instalación desde `requirements.txt` se validó en un entorno virtual nuevo con Python 3.14.7 el 6 de noviembre de 2026**. La presencia de un paquete en `requirements.txt` no implica que esté instalado en cualquier intérprete Python utilizado.
 
 ## 2. Obtener el código y preparar dependencias
 
@@ -42,6 +42,23 @@ Desde la raíz del repositorio, utilizando el mismo intérprete del entorno:
 ```
 
 La salida esperada es `dist\SmartCrop\SmartCrop.exe` y `dist\SmartCrop\_internal\`. El archivo `.spec` incluye `collect_all('torch')`, `collect_all('torchvision')` y `collect_all('pi_heif')` y empaqueta recursos, avisos y Real-ESRGAN. **Revisar los avisos de PyInstaller sobre imports faltantes y comprobar el funcionamiento antes de empaquetar**.
+
+### Reconstrucción independiente efectuada el 6 de noviembre de 2026
+
+Desde `C:\SmartCrop_Test\SmartCrop_GitHub` (copia de trabajo con código y recursos ya presentes), se creó un entorno virtual nuevo mediante `py -3.14 -m venv .venv`. Se verificó que utilizaba **Python 3.14.7 x64** y que `sys.prefix != sys.base_prefix`. Se instalaron las dependencias con `pip install -r requirements.txt` y `pip check` devolvió `No broken requirements found.`
+
+La primera compilación independiente se ejecutó con:
+
+```powershell
+.\.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean --distpath dist_rebuild_clean --workpath build_rebuild_clean SmartCrop_Store.spec
+```
+
+PyInstaller 6.22.3 informó `Build complete!` y generó `dist_rebuild_clean\SmartCrop\SmartCrop.exe`. Durante el proceso, Ultralytics detectó la ausencia de `lap>=0.5.12` y **lo instaló automáticamente**, en versión **0.5.14**; después se añadió `lap==0.5.14` a `requirements.txt`. Se comprobó con `pip show lap` (licencia declarada BSD-2-Clause) y con `pip install --dry-run -r requirements.txt`, que mostró las dependencias satisfechas. **No se repitió la compilación tras agregar `lap` al archivo de requisitos.**
+
+Se ejecutó el nuevo `SmartCrop.exe` y se probaron satisfactoriamente la apertura de la aplicación, importación de imágenes, visualización y ajuste de recortes, exportación y mejora de imagen con **Real-ESRGAN**. No se registraron errores en esas pruebas manuales.
+
+**Alcance:** esta prueba valida una compilación y funcionamiento básicos con un entorno Python nuevo, **no** una reconstrucción desde un clon en otra máquina, ni una coincidencia binaria con el paquete certificado, ni el funcionamiento de un MSIX reconstruido e instalado. Los recursos externos ya estaban disponibles en la carpeta de trabajo; el proceso de preparación de Real-ESRGAN no se repitió en esta prueba.
+
 
 ### Particularidad de VCOMP140.DLL
 
@@ -97,12 +114,12 @@ La salida sin firma sirve para inspección técnica; **no está lista para insta
 
 ## 6. Verificaciones necesarias
 
-1. Confirmar que `SmartCrop.exe` abre y permite importar, recortar, mover, exportar y usar la mejora IA en un entorno de prueba.
+1. **Realizado en la reconstrucción independiente:** `SmartCrop.exe` abrió y permitió importar, visualizar/ajustar recortes, exportar y usar la mejora IA con Real-ESRGAN. Falta una prueba equivalente en otra máquina y en el MSIX instalado.
 2. Inspeccionar la presencia y licencias de modelos, Real-ESRGAN, Qt, PySide6, Shiboken6 y dependencias transitivas.
 3. Comparar el inventario de DLL y plugins Qt de la nueva compilación con `QT_LGPL_COMPLIANCE.md` y `QT_SOURCE_CODE.md`.
 4. Inspeccionar `AppxManifest.xml` y los recursos gráficos; validar el paquete con herramientas de Windows SDK.
 5. Probar el paquete en un entorno aislado con la firma y el mecanismo de instalación adecuados.
-6. Registrar versiones, hashes y comandos reales del build; no declarar reproducibilidad completa sin esta prueba.
+6. Registrar versiones, hashes y comandos reales del build; la compilación independiente ya quedó documentada, pero faltan hashes comparativos y validación en otra máquina. No declarar reproducibilidad completa.
 
 ## 7. Código fuente de Qt, modificaciones y obligaciones de licencia
 

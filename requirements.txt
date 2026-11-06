@@ -1,6 +1,6 @@
 # SmartCrop AI — dependencias directas verificadas en main.py
 # Versiones del entorno registrado (octubre de 2026).
-# Python 3.14 / Windows. La instalación en un entorno limpio está pendiente de prueba.
+# Python 3.14 / Windows. Instalación en entorno virtual nuevo validada el 06/11/2026 con Python 3.14.7.
 PySide6==6.11.2
 ultralytics==8.4.157
 opencv-python==4.12.0.88
@@ -12,6 +12,9 @@ pillow-avif-plugin==1.6.0
 # Se fijan para reproducir la compilación conocida, aunque no son imports directos del archivo principal.
 torch==2.14.0
 torchvision==0.29.0
+
+# Dependencia adicional requerida por Ultralytics durante la compilación.
+lap==0.5.14
 
 # Dependencia incluida por SmartCrop.spec (collect_all('pi_heif')).
 # Versión confirmada con: py -m pip show pi-heif
