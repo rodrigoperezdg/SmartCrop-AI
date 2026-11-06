@@ -142,3 +142,16 @@ También queda pendiente la revisión de **AGPL-3.0 y Ultralytics**, así como d
 - `QT_LGPL_COMPLIANCE.md`
 - `QT_SOURCE_CODE.md`
 - `THIRD_PARTY_NOTICES.md`
+
+## 9. Trazabilidad del código fuente y reconstrucción (06/11/2026)
+
+- Código principal Store: `main_store.py`, incorporado en el commit `382eec6` (05/11/2026), sin modificaciones posteriores verificadas al 06/11/2026.
+- SHA-256 de `main_store.py`: `761591FE2B0B88AC9DF94766DDD78A9252D94043B4992669C2322335FB55ED4A`.
+- SHA-256 del `SmartCrop_Store.spec` actual: `F5FE1144D8D236E779231D378541F176E3F9FB42C00325A060B3364DB9719C72`.
+- El `.spec` fue adaptado para utilizar rutas relativas de recursos gráficos.
+- Reconstrucción independiente validada con Python 3.14.7 y PyInstaller 6.22.3.
+- El MSIX certificado contiene Python 3.14.0.
+- Las seis DLL principales de Qt coinciden por SHA-256 entre ambas distribuciones.
+- Los ejecutables reconstruido y certificado presentan hashes diferentes.
+
+**Limitación:** estos datos identifican el código fuente disponible y las diferencias conocidas entre compilaciones. No demuestran que el MSIX certificado se haya generado exactamente desde el commit `382eec6`, ni acreditan reproducibilidad binaria o cumplimiento de licencias.
